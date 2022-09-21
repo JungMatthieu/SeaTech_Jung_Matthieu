@@ -1,0 +1,22 @@
+COMPTE RENDU PROJET ROBOT
+
+2: Timer
+LEDBLANCHE : 1kHz
+LEDORANGE : 1Hz
+
+Changement des prescaler de :
+T1CONbits.TCKPS = 0b01; a T1CONbits.TCKPS = 0b11; 
+LEDBLANCHE : 15Hz
+
+T2CONbits.TCKPS = 0b00; a T2CONbits.TCKPS = 0b01;  
+LEDORANGE = 64.7mHz
+
+Ainsi plus on augmente le prescaler plus la frequence diminue !
+// 11 = 1: 256 prescale value
+// 10 = 1: 64 prescale value
+// 01 = 1: 8 prescale value
+// 00 = 1: 1 prescale value
+
+On cherche a faire clignoter la LED Blanche a une frequence de 6kHz.
+On cherche donc a changer la valeur de PR1 (voir formule poly)
+PR1 = 0x0068; (104) contre 5000 avant (PR1 = 0x1388;)

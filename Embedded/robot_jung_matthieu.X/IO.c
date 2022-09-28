@@ -48,7 +48,11 @@ void InitIO()
 
     // Moteurs 
 
-
+    _TRISB14 = 0; // pins B14
+    _TRISB15 = 0; // pin B15
+    
+    _TRISC6 = 0; // pins C6
+    _TRISC7 = 0; // pin C7
 
     //********** Configuration des entrées : _TRISxx = 1 ********************************   
 

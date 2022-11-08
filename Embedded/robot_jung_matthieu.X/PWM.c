@@ -66,6 +66,14 @@ void PWMUpdateSpeed() {
     MOTEUR_GAUCHE_DUTY_CYCLE = Abs(robotState.vitesseGaucheCommandeCourante) * PWMPER;
 }
 
+void PWMSetSpeedConsigne(float vitesseEnPourcents, int moteur){
+    if (moteur == MOTEUR_GAUCHE) {
+        robotState.vitesseGaucheConsigne = vitesseEnPourcents;
+    } else {
+        robotState.vitesseDroiteConsigne = vitesseEnPourcents;
+    }
+}
+
 //void PWMSetSpeed(float vitesseEnPourcents, int num_moteur) {
 //    switch (num_moteur) {
 //        case MOTEUR_GAUCHE:

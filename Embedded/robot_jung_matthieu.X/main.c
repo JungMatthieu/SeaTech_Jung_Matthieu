@@ -105,8 +105,8 @@ void OperatingSystemLoop(void)
         {
             case STATE_ATTENTE:
                 resetTimeStamp();
-                PWMSetSpeedConsigne(20, MOTEUR_DROIT);
-                PWMSetSpeedConsigne(20, MOTEUR_GAUCHE);
+                PWMSetSpeedConsigne(0, MOTEUR_DROIT);
+                PWMSetSpeedConsigne(0, MOTEUR_GAUCHE);
                 stateRobot = STATE_ATTENTE_EN_COURS;
 
             case STATE_ATTENTE_EN_COURS:

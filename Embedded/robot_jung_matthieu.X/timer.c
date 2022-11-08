@@ -2,6 +2,7 @@
 #include "timer.h"
 #include "IO.h"
 #include "PWM.h"
+#include "ADC.h"
 
 unsigned char toggle = 0;
 
@@ -62,5 +63,7 @@ void InitTimer1(void) {
 
 void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void) {
     IFS0bits.T1IF = 0; //Clear Timer1 Interrupt flag
-    LED_BLANCHE = !LED_BLANCHE;
+    //LED_BLANCHE = !LED_BLANCHE;
+    //PWMUpdateSpeed();
+    ADC1StartConversionSequence();
 }

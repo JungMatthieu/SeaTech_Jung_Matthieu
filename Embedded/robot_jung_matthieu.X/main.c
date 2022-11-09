@@ -84,15 +84,15 @@ int main(void) {
             else LED_BLANCHE = 0;
             
             sensorState = 0;
-            if (robotState.distanceTelemetreExtremGauche <= 27)
+            if (robotState.distanceTelemetreExtremGauche <= 20)
                 sensorState = sensorState | 0b10000 ;
-            if (robotState.distanceTelemetreGauche <= 30)
+            if (robotState.distanceTelemetreGauche <= 27)
                 sensorState = sensorState | 0b01000 ;
             if (robotState.distanceTelemetreCentre <= 33)
                 sensorState = sensorState | 0b00100 ;
-            if (robotState.distanceTelemetreDroit <= 30)
+            if (robotState.distanceTelemetreDroit <= 27)
                 sensorState = sensorState | 0b00010 ;
-            if (robotState.distanceTelemetreExtremDroit <= 27)
+            if (robotState.distanceTelemetreExtremDroit <= 20)
                 sensorState = sensorState | 0b00001 ;
             
         }
@@ -100,10 +100,11 @@ int main(void) {
 }
 
 unsigned char stateRobot;
-float vitesse = 30;
+float vitesse = 29;
 float vitessemanoeuvre = 25;
 float disevitement = 33;
 float demi = 0;
+float temps_bloque=0;
 
 void OperatingSystemLoop(void)
     {
@@ -199,6 +200,19 @@ void OperatingSystemLoop(void)
             break;
             case STATE_RECULE_LEGER_DROITE_EN_COURS:
                 SetNextRobotStateInAutomaticMode();
+                break; 
+               
+            case STATE_DEMI_TOUR:
+                PWMSetSpeedConsigne(-vitessemanoeuvre / 2, MOTEUR_DROIT);
+                PWMSetSpeedConsigne(vitessemanoeuvre / 2, MOTEUR_GAUCHE);
+                demi = 0;
+                stateRobot = STATE_DEMI_TOUR_EN_COURS;
+                break;
+            case STATE_DEMI_TOUR_EN_COURS:
+                demi = demi + 1;
+                if (demi >= 175) {
+                    SetNextRobotStateInAutomaticMode();
+                }
                 break;    
 
             default :
@@ -257,6 +271,13 @@ void SetNextRobotStateInAutomaticMode()
             nextStateRobot = STATE_RECULE_LEGER_DROITE; 
             break;
         case 0b01111:
+//            if(temps_bloque<5000){
+//                nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE; 
+//                break;
+//            }
+//            else {
+//                nextStateRobot = STATE_DEMI_TOUR;
+//            }
             nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE; 
             break;
         case 0b10000:

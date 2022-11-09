@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/debug/robot_jung_matthieu.X.debug.elf">
+  <executable name="dist/default/production/robot_jung_matthieu.X.production.elf">
     <memory name="data">
       <units>bytes</units>
       <length>49152</length>
-      <used>176</used>
-      <free>48976</free>
+      <used>96</used>
+      <free>49056</free>
     </memory>
     <memory name="program">
       <units>bytes</units>

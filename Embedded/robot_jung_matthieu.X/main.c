@@ -84,15 +84,15 @@ int main(void) {
             else LED_BLANCHE = 0;
             
             sensorState = 0;
-            if (robotState.distanceTelemetreExtremGauche <= 30)
+            if (robotState.distanceTelemetreExtremGauche <= 27)
                 sensorState = sensorState | 0b10000 ;
             if (robotState.distanceTelemetreGauche <= 30)
                 sensorState = sensorState | 0b01000 ;
-            if (robotState.distanceTelemetreCentre <= 30)
+            if (robotState.distanceTelemetreCentre <= 33)
                 sensorState = sensorState | 0b00100 ;
             if (robotState.distanceTelemetreDroit <= 30)
                 sensorState = sensorState | 0b00010 ;
-            if (robotState.distanceTelemetreExtremDroit <= 30)
+            if (robotState.distanceTelemetreExtremDroit <= 27)
                 sensorState = sensorState | 0b00001 ;
             
         }
@@ -100,7 +100,7 @@ int main(void) {
 }
 
 unsigned char stateRobot;
-float vitesse = 25;
+float vitesse = 30;
 float vitessemanoeuvre = 25;
 float disevitement = 33;
 float demi = 0;
@@ -185,12 +185,21 @@ void OperatingSystemLoop(void)
                 
             case STATE_RECULE:
             PWMSetSpeedConsigne(-vitessemanoeuvre , MOTEUR_DROIT);
-            PWMSetSpeedConsigne(-vitessemanoeuvre / 2, MOTEUR_GAUCHE);
+            PWMSetSpeedConsigne(-vitessemanoeuvre , MOTEUR_GAUCHE);
             stateRobot = STATE_RECULE_EN_COURS;
             break;
             case STATE_RECULE_EN_COURS:
                 SetNextRobotStateInAutomaticMode();
                 break;
+            
+            case STATE_RECULE_LEGER_DROITE:
+            PWMSetSpeedConsigne(-vitessemanoeuvre , MOTEUR_DROIT);
+            PWMSetSpeedConsigne(-vitessemanoeuvre / 2, MOTEUR_GAUCHE);
+            stateRobot = STATE_RECULE_LEGER_DROITE_EN_COURS;
+            break;
+            case STATE_RECULE_LEGER_DROITE_EN_COURS:
+                SetNextRobotStateInAutomaticMode();
+                break;    
 
             default :
                 stateRobot = STATE_ATTENTE;
@@ -239,13 +248,13 @@ void SetNextRobotStateInAutomaticMode()
             nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE; 
             break;
         case 0b01100:
-            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE; 
+            nextStateRobot = STATE_RECULE_LEGER_DROITE; 
             break;
         case 0b01101:
             nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE; 
             break;
         case 0b01110:
-            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE; 
+            nextStateRobot = STATE_RECULE_LEGER_DROITE; 
             break;
         case 0b01111:
             nextStateRobot = STATE_TOURNE_SUR_PLACE_GAUCHE; 
@@ -257,7 +266,7 @@ void SetNextRobotStateInAutomaticMode()
             nextStateRobot = STATE_AVANCE;  
             break;
         case 0b10010:
-            nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;  
+            nextStateRobot = STATE_TOURNE_GAUCHE_LEGER;  
             break;
         case 0b10011:
             nextStateRobot = STATE_TOURNE_SUR_PLACE_DROITE;  

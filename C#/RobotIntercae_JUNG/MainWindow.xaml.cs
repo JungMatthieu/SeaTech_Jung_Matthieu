@@ -34,7 +34,7 @@ namespace RobotIntercae_JUNG
         public MainWindow()
         {
             InitializeComponent();
-            serialPort1 = new ReliableSerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
+            serialPort1 = new ReliableSerialPort("COM7", 115200, Parity.None, 8, StopBits.One);
             serialPort1.DataReceived += serialPort1_DataReceived;
             serialPort1.Open();
 
@@ -48,16 +48,29 @@ namespace RobotIntercae_JUNG
 
         private void TimerAffichage_Tick(object sender, EventArgs e)
         {
-            if (robot.receivedText!= "")
+            //if (robot.receivedText!= "")
+            //{
+            //    textBoxReception.Text += robot.receivedText;
+            //    robot.receivedText = "";
+            //}
+            ////foreach (byte value in robot.byteListReceived)
+            ////{
+            ////    value.ToString();
+            ////}
+            while (robot.byteListReceived.Count > 0)
             {
-                textBoxReception.Text += "Recu : " + robot.receivedText;
-                robot.receivedText = "";
+                byte value = robot.byteListReceived.Dequeue();
+                textBoxReception.Text += "0x" + value.ToString("X2") + " ";
             }
         }
 
         private void serialPort1_DataReceived(object sender, DataReceivedArgs e)
         {
-            robot.receivedText += Encoding.UTF8.GetString(e.Data, 0, e.Data.Length);
+            //robot.receivedText += Encoding.UTF8.GetString(e.Data, 0, e.Data.Length);
+            foreach (byte value in e.Data)
+            {
+                robot.byteListReceived.Enqueue(value);
+            }
         }
 
         
@@ -110,5 +123,6 @@ namespace RobotIntercae_JUNG
             }
             serialPort1.Write(byteList, 0, byteList.Length);
         }
+
     }
 }

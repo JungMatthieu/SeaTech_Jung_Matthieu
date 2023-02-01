@@ -14,8 +14,10 @@ namespace RobotIntercae_JUNG
         public float distanceTelemetreGauche;
         public float distanceTelemetreExtremGauche;
         public float distanceTelemetreExtremDroite;
+        public Queue<byte> byteListReceived;
         public Robot()
         {
+            byteListReceived = new Queue<byte>();
         }
     }
 }

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/production/Com_ptp_embeded.X.production.elf">
+  <executable name="dist/default/debug/Com_ptp_embeded.X.debug.elf">
     <memory name="data">
       <units>bytes</units>
       <length>49152</length>
-      <used>204</used>
-      <free>48948</free>
+      <used>416</used>
+      <free>48736</free>
     </memory>
     <memory name="program">
       <units>bytes</units>
       <length>524514</length>
-      <used>7446</used>
-      <free>517068</free>
+      <used>7641</used>
+      <free>516873</free>
     </memory>
   </executable>
 </project>

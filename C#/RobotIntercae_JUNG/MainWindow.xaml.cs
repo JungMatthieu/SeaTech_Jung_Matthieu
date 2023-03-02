@@ -116,12 +116,165 @@ namespace RobotIntercae_JUNG
         }
         private void buttonTest_Click(object sender, RoutedEventArgs e)
         {
-            byte[] byteList= new byte[20];
-            for (int i=0; i<20; i++)
+            //byte[] byteList= new byte[20];
+            //for (int i=0; i<20; i++)
+            //{
+            //    byteList[i] = (byte)(2*i);
+            //}
+            //serialPort1.Write(byteList, 0, byteList.Length);
+            byte[] playload = Encoding.ASCII.GetBytes("Bonjour");
+            int playloadLength = playload.Length;
+            int fonctionNumber = 0x0080;
+            UartEncodeAndSendMessage(fonctionNumber, playloadLength, playload);
+        }
+
+        byte CalculateCheckSum(int msgFunction, int msgPlayloadLength, byte[] msgPlayload)
+        {
+            byte ChekSum = 0x00;
+            ChekSum ^= 0xFE;
+            ChekSum ^= (byte)(msgFunction >> 8);
+            ChekSum ^= (byte)(msgFunction >> 0);
+            ChekSum ^= (byte)(msgPlayloadLength >> 8);
+            ChekSum ^= (byte)(msgPlayloadLength >> 0);
+
+            for (int i=0; i < msgPlayloadLength; i++)
             {
-                byteList[i] = (byte)(2*i);
+                ChekSum ^= (byte)(msgPlayload[i]);
             }
-            serialPort1.Write(byteList, 0, byteList.Length);
+            return ChekSum;
+        }
+
+        void UartEncodeAndSendMessage(int msgFunction,int msgPayloadLength, byte[] msgPayload)
+        {
+            const byte START_BYTE = 0xFE;
+            const byte END_BYTE = 0xFF;
+
+            // Calcul de la checksum
+            byte checksum = CalculateCheckSum(msgFunction, msgPayloadLength, msgPayload);
+
+            byte[] frame = new byte[7 + msgPayloadLength];
+            frame[0] = START_BYTE;
+            frame[1] = (byte)(msgFunction >> 8);
+            frame[2] = (byte)(msgFunction >> 0);
+            frame[3] = (byte)(msgPayloadLength >> 8);
+            frame[4]= (byte)(msgPayloadLength >> 0);
+            for (int i=0; i < msgPayloadLength; i++)
+            {
+                frame[5 + i] = (byte)(msgPayload[i]);
+            }
+            frame[msgPayloadLength + 5] = checksum;
+            frame[msgPayloadLength + 6] = END_BYTE;
+            serialPort1.Write(frame, 0, frame.Length);
+        }
+
+        private void ProcessDecodeMessage(int function, int payloadLength, byte[] payload)
+        {
+            switch (function)
+            {
+                case 0x0080:
+                    string message = Encoding.ASCII.GetString(payload);
+                    serialPort1.Write("message reçu " + message);
+                    break;
+                default:
+                    serialPort1.Write("function non reconnue" + function);
+                    break;
+            }
+            
+        }
+
+        public enum StateReception
+        {
+            Waiting,
+            FunctionMSB,
+            FunctionLSB,
+            PayloadLengthMSB,
+            PayloadLengthLSB,
+            PayLoad,
+            CheckSum,
+            End
+        }
+
+        StateReception rcvState = StateReception.Waiting;
+        int msgDecodeFunction = 0;
+        int msgDecodePayLoadLength = 0;
+        byte[] msgDecodePayLoad;
+        int msgDecodePayloadIndex =0;
+
+        private void DecodeMessage(byte c)
+        {
+            switch (rcvState)
+            {
+                case StateReception.Waiting:
+                    if (c == 0xFE)
+                    {
+                        rcvState = StateReception.FunctionMSB;
+                    }break;
+
+                case StateReception.FunctionMSB:
+                    msgDecodeFunction = c << 8;
+                    rcvState = StateReception.FunctionLSB;
+                    break;
+
+                case StateReception.FunctionLSB:
+                    msgDecodeFunction |= c;
+                    rcvState = StateReception.PayloadLengthMSB;
+                    break;
+
+                case StateReception.PayloadLengthMSB:
+                    msgDecodePayLoadLength |= c;
+                    if (msgDecodePayLoadLength > 0)
+                    {
+                        msgDecodePayLoad = new byte[msgDecodePayLoadLength];
+                        rcvState = StateReception.PayLoad;
+                    }
+                    else
+                    {
+                        rcvState = StateReception.CheckSum;
+                    }
+                    break;
+
+                case StateReception.PayLoad:
+                    msgDecodePayLoad[msgDecodePayloadIndex] = c;
+                    msgDecodePayloadIndex++;
+                    if (msgDecodePayloadIndex >= msgDecodePayLoadLength)
+                    {
+                        rcvState = StateReception.CheckSum;
+                    }
+                    break;
+
+                case StateReception.CheckSum:
+                    int calculatedCheckSum = CalculateCheckSum(msgDecodeFunction, msgDecodePayLoadLength, msgDecodePayLoad);
+                    if (calculatedCheckSum == c)
+                    {
+                        //Transmission OK : message valide
+                        ProcessDecodeMessage(msgDecodeFunction, msgDecodePayLoadLength, msgDecodePayLoad);
+                    }
+                    //reset pour la prochaine trame
+                    msgDecodeFunction = 0;
+                    msgDecodePayLoad = null;
+                    msgDecodePayLoadLength = 0;
+                    msgDecodePayloadIndex = 0;
+                    rcvState = StateReception.End;
+                    break;
+
+                case StateReception.End:
+                    if (c != 0xFF)
+                    {
+                        serialPort1.Write(" Message corrompu ");
+                        rcvState = StateReception.Waiting;
+                    }
+                    else
+                    {
+                        rcvState = StateReception.Waiting;
+                    }
+                    break;
+
+                default:
+                    rcvState = StateReception.Waiting;
+                    break;
+
+
+            }
         }
 
     }

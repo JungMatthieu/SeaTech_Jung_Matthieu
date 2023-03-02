@@ -16,6 +16,7 @@
 #include "ADC.h"
 #include "main.h"
 #include "UART.h"
+#include "CB_TX1.h"
 
 unsigned int ADCValue0;
 unsigned int ADCValue1;
@@ -104,7 +105,12 @@ int main(void) {
 //            SendMessageDirect((unsigned char*) "Bonjour",7);
 //            __delay32(40000000);
         
-        
+        int i;
+        for (i=0;i<CB_TX1_GetDataSize();i++){
+            unsigned char c= CB_TX1_Get();
+            SendMessage(&c,1);
+        }
+        __delay32(1000);
     }
 }
 
